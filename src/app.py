@@ -27,6 +27,7 @@ app.config['MYSQL_DB'] = os.environ.get('DATABASE_NAME')
 
 my_url = os.environ.get('HOST_URL')
 
+
 mysql = MySQL(app)
 UPLOAD_FOLDER = r'src\static\uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -367,7 +368,7 @@ def login():
             'password' : request.form['password']
         }
         # Check if account exists using MySQL
-        response = requests.get("{my_url}/api/accounts/login/", json = data)
+        response = requests.get(f"{my_url}/api/accounts/login/", json = data)
         # Fetch one record and return result
         account = response.json()
         # If account exists in accounts table in out database
@@ -385,7 +386,7 @@ def login():
     return render_template('index.html', msg=msg)
 
 # http://localhost:5000/python/logout - this will be the logout page
-@app.route('/pythonlogin/logout')
+@app.route('/logout')
 def logout():
     # Remove session data, this will log the user out
    session.pop('loggedin', None)
@@ -395,7 +396,7 @@ def logout():
    return redirect(url_for('login'))
 
 # http://localhost:5000/pythinlogin/register - this will be the registration page, we need to use both GET and POST requests
-@app.route('/pythonlogin/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     # Output message if something goes wrong...
     msg = ''
@@ -424,7 +425,7 @@ def register():
             msg = 'Please fill out the form!'
         else:
             # Account doesnt exists and the form data is valid, now insert new account into accounts table
-            response = requests.post("{my_url}/api/accounts/", json=data)
+            response = requests.post(f"{my_url}/api/accounts/", json=data)
             msg = response.json()['message']
     elif request.method == 'POST':
         # Form is empty... (no POST data)
@@ -438,7 +439,7 @@ def home():
     # Check if user is loggedin
     if 'loggedin' in session:
         # User is loggedin show them the home page
-        response = requests.get("{my_url}/api/rooms/")
+        response = requests.get(f"{my_url}/api/rooms/")
         rooms = response.json()
         rooms = [(row['room_id'], row['room_name'], row['description']) for row in rooms]
         response = requests.get(f"{my_url}/api/accounts/{session['id']}")
@@ -503,7 +504,7 @@ def upload_image(id):
                     'signature_image' : image,
                     'account_id' : id
                 }
-                response = requests.post("{my_url}/api/signatures/", json=data)
+                response = requests.post(f"{my_url}/api/signatures/", json=data)
                 os.remove(image_path)
         return redirect(url_for('profile'))
 
@@ -525,15 +526,15 @@ def createroom():
             'description' : request.form['description'],
             'account_id' : session['id']
         }
-        response = requests.post("{my_url}/api/rooms/", json=data)
-        response = requests.get("{my_url}/api/rooms/room", json=data)
+        response = requests.post(f"{my_url}/api/rooms/", json=data)
+        response = requests.get(f"{my_url}/api/rooms/room", json=data)
         room = response.json()
         data = {
             'model_name' : 'signet_model',
             'train_status' : 'untrained',
             'room_id' : room['room_id']
         }
-        response = requests.post("{my_url}/api/models/", json=data)
+        response = requests.post(f"{my_url}/api/models/", json=data)
         flash('Success')
         return redirect(url_for('home'))
 
@@ -603,7 +604,7 @@ def joinroom(room_id):
                 'account_id' : session['id'],
                 'room_id' : room_id
             }
-            response = requests.post("{my_url}/api/join_rooms/", json=data)  
+            response = requests.post(f"{my_url}/api/join_rooms/", json=data)  
         return redirect(url_for('viewroom', room_id=room_id))
 
 @app.route('/home/room/leave/<room_id>', methods=['POST', 'GET'])
