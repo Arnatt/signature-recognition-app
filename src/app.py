@@ -25,6 +25,7 @@ app.config['MYSQL_PASSWORD'] = os.environ.get('DATABASE_PASSWORD')
 app.config['MYSQL_PORT'] = int(os.environ.get('DATABASE_PORT'))
 app.config['MYSQL_DB'] = os.environ.get('DATABASE_NAME')
 
+my_url = os.environ.get('HOST_URL')
 
 mysql = MySQL(app)
 UPLOAD_FOLDER = r'src\static\uploads'
@@ -63,7 +64,7 @@ class Image_Preprocessing:
 img_pre = Image_Preprocessing(155, 220)
 
 def get_batch(batch_size, room_id):
-    response = requests.get(f"http://127.0.0.1:5000/api/signatures/room/{room_id}")
+    response = requests.get(f"{my_url}/api/signatures/room/{room_id}")
     myresult = response.json()
     df = pd.DataFrame(myresult)
     signers_id = df['id'].unique()
@@ -100,7 +101,7 @@ def get_batch(batch_size, room_id):
     return pairs, targets
 
 def get_model(room_id):
-    response = requests.get(f"http://127.0.0.1:5000/api/models/{room_id}")
+    response = requests.get(f"{my_url}/api/models/{room_id}")
     model_data = response.json()
     model_path = os.path.join(r"src\static\models", model_data['model_name']+".h5")
     custom_objects = {"contrastive_loss": contrastive_loss}
@@ -366,7 +367,7 @@ def login():
             'password' : request.form['password']
         }
         # Check if account exists using MySQL
-        response = requests.get("http://127.0.0.1:5000/api/accounts/login/", json = data)
+        response = requests.get("{my_url}/api/accounts/login/", json = data)
         # Fetch one record and return result
         account = response.json()
         # If account exists in accounts table in out database
@@ -410,7 +411,7 @@ def register():
             'lname' : request.form['lname']
         }
         # Check if account exists using MySQL
-        response = requests.get(f"http://127.0.0.1:5000/api/accounts/username/{data['username']}")
+        response = requests.get(f"{my_url}/api/accounts/username/{data['username']}")
         account = response.json()
         # If account exists show error and validation checks
         if account:
@@ -423,7 +424,7 @@ def register():
             msg = 'Please fill out the form!'
         else:
             # Account doesnt exists and the form data is valid, now insert new account into accounts table
-            response = requests.post("http://127.0.0.1:5000/api/accounts/", json=data)
+            response = requests.post("{my_url}/api/accounts/", json=data)
             msg = response.json()['message']
     elif request.method == 'POST':
         # Form is empty... (no POST data)
@@ -437,10 +438,10 @@ def home():
     # Check if user is loggedin
     if 'loggedin' in session:
         # User is loggedin show them the home page
-        response = requests.get("http://127.0.0.1:5000/api/rooms/")
+        response = requests.get("{my_url}/api/rooms/")
         rooms = response.json()
         rooms = [(row['room_id'], row['room_name'], row['description']) for row in rooms]
-        response = requests.get(f"http://127.0.0.1:5000/api/accounts/{session['id']}")
+        response = requests.get(f"{my_url}/api/accounts/{session['id']}")
         account = response.json()
         fname = account['fname']
         return render_template('home.html', rooms=rooms, id=session['id'], username=session['username'], fname=fname)
@@ -453,9 +454,9 @@ def profile():
     # Check if user is loggedin
     if 'loggedin' in session:
         # We need all the account info for the user so we can display it on the profile page
-        response = requests.get(f"http://127.0.0.1:5000/api/accounts/{session['id']}")
+        response = requests.get(f"{my_url}/api/accounts/{session['id']}")
         account = response.json()
-        response = requests.get(f"http://127.0.0.1:5000/api/signatures/{session['id']}")
+        response = requests.get(f"{my_url}/api/signatures/{session['id']}")
         images = response.json()
         images = [tuple(row.values()) for row in images]
         # Show the profile page with account info
@@ -467,7 +468,7 @@ def profile():
 @app.route('/edit/<username>' , methods=['POST', 'GET'])
 def edit_profile(username):
     if request.method == 'GET':
-        response = requests.get(f"http://127.0.0.1:5000/api/accounts/{session['id']}")
+        response = requests.get(f"{my_url}/api/accounts/{session['id']}")
         account = response.json()
         print(account)
         return render_template('edit.html', account = account)
@@ -478,7 +479,7 @@ def edit_profile(username):
             'fname' : request.form['fname'],
             'lname' : request.form['lname']
         }
-        response = requests.put(f"http://127.0.0.1:5000/api/accounts/{session['id']}", json=data)
+        response = requests.put(f"{my_url}/api/accounts/{session['id']}", json=data)
         return redirect(url_for('profile'))
 
 #go to upload image
@@ -502,7 +503,7 @@ def upload_image(id):
                     'signature_image' : image,
                     'account_id' : id
                 }
-                response = requests.post("http://127.0.0.1:5000/api/signatures/", json=data)
+                response = requests.post("{my_url}/api/signatures/", json=data)
                 os.remove(image_path)
         return redirect(url_for('profile'))
 
@@ -510,7 +511,7 @@ def upload_image(id):
 @app.route('/profile/delete/<signature_id>' , methods=['DELETE','GET'])
 def manage_image(signature_id):
     if 'loggedin' in session:
-        response = requests.delete(f"http://127.0.0.1:5000/api/signatures/{signature_id}")
+        response = requests.delete(f"{my_url}/api/signatures/{signature_id}")
         return redirect(url_for('profile'))
 
 @app.route('/home/createroom' , methods=['POST', 'GET'])
@@ -524,22 +525,22 @@ def createroom():
             'description' : request.form['description'],
             'account_id' : session['id']
         }
-        response = requests.post("http://127.0.0.1:5000/api/rooms/", json=data)
-        response = requests.get("http://127.0.0.1:5000/api/rooms/room", json=data)
+        response = requests.post("{my_url}/api/rooms/", json=data)
+        response = requests.get("{my_url}/api/rooms/room", json=data)
         room = response.json()
         data = {
             'model_name' : 'signet_model',
             'train_status' : 'untrained',
             'room_id' : room['room_id']
         }
-        response = requests.post("http://127.0.0.1:5000/api/models/", json=data)
+        response = requests.post("{my_url}/api/models/", json=data)
         flash('Success')
         return redirect(url_for('home'))
 
 @app.route('/home/manageroom/' , methods=['POST', 'GET'])
 def manageroom():
     if 'loggedin' in session:
-        response = requests.get(f"http://127.0.0.1:5000/api/rooms/account/{session['id']}")
+        response = requests.get(f"{my_url}/api/rooms/account/{session['id']}")
         myrooms = response.json()
         myrooms = [(row['room_id'], row['room_name'], row['description'], row['train_status']) for row in myrooms]
         return render_template('manageroom.html' , myrooms=myrooms )
@@ -547,21 +548,21 @@ def manageroom():
 @app.route('/home/manageroom/delete/<room_id>' , methods=['POST', 'GET'])
 def deleteRoom(room_id):
     if 'loggedin' in session:
-        response = requests.get(f"http://127.0.0.1:5000/api/models/{room_id}")
+        response = requests.get(f"{my_url}/api/models/{room_id}")
         model_data = response.json()
         model_name = model_data['model_name']
         if model_name != 'signet_model':
             model_path = os.path.join(r"src\static\models", model_name+".h5")
             os.remove(model_path)
-        response = requests.delete(f"http://127.0.0.1:5000/api/rooms/{room_id}")
+        response = requests.delete(f"{my_url}/api/rooms/{room_id}")
         return redirect(url_for('manageroom'))
 
 @app.route('/home/manageroom/editroom/<room_id>' , methods=['POST', 'GET'])
 def editroom(room_id):
     if request.method == 'GET':
-        response = requests.get(f"http://127.0.0.1:5000/api/rooms/{room_id}")
+        response = requests.get(f"{my_url}/api/rooms/{room_id}")
         room = response.json()
-        response = requests.get(f"http://127.0.0.1:5000/api/join_rooms/{room_id}")
+        response = requests.get(f"{my_url}/api/join_rooms/{room_id}")
         acc_join = response.json()
         acc_join = [(row['id'], row['std_id'], row['fname'], row['lname']) for row in acc_join]
         return render_template('editroom.html', room=room, acc_join=acc_join)
@@ -571,22 +572,22 @@ def editroom(room_id):
             'room_name' : request.form['room_title'],
             'description' : request.form['description']
         }
-        response = requests.put(f"http://127.0.0.1:5000/api/rooms/{room_id}", json=data)
+        response = requests.put(f"{my_url}/api/rooms/{room_id}", json=data)
         flash("Update Complate !")
         return redirect(url_for('manageroom'))
     
 @app.route('/home/manageroom/editroom/delete/<room_id>/<id>' , methods=['POST', 'GET'])
 def kick_user(room_id, id):
     if 'loggedin' in session:
-        response = requests.delete(f"http://127.0.0.1:5000/api/join_rooms/{room_id}/{id}")
+        response = requests.delete(f"{my_url}/api/join_rooms/{room_id}/{id}")
         return redirect(url_for('editroom'))
 
 @app.route('/home/room/<room_id>', methods=['POST', 'GET'])
 def viewroom(room_id):   
   if 'loggedin' in session:
-        response = requests.get(f"http://127.0.0.1:5000/api/rooms/{room_id}")
+        response = requests.get(f"{my_url}/api/rooms/{room_id}")
         inforoom = response.json()
-        response = requests.get(f"http://127.0.0.1:5000/api/join_rooms/{room_id}")
+        response = requests.get(f"{my_url}/api/join_rooms/{room_id}")
         acc_join = response.json()
         acc_join = [(row['std_id'], row['fname'], row['lname'], row['check_status']) for row in acc_join]
         return render_template('room.html', inforoom=inforoom, acc_join=acc_join)
@@ -594,7 +595,7 @@ def viewroom(room_id):
 @app.route('/home/room/join/<room_id>', methods=['POST', 'GET'])
 def joinroom(room_id):
     if 'loggedin' in session:
-        response = requests.get(f"http://127.0.0.1:5000/api/join_rooms/{room_id}/{session['id']}")
+        response = requests.get(f"{my_url}/api/join_rooms/{room_id}/{session['id']}")
         checkJoin = response.json()
         if checkJoin == None:
             data = {
@@ -602,25 +603,25 @@ def joinroom(room_id):
                 'account_id' : session['id'],
                 'room_id' : room_id
             }
-            response = requests.post("http://127.0.0.1:5000/api/join_rooms/", json=data)  
+            response = requests.post("{my_url}/api/join_rooms/", json=data)  
         return redirect(url_for('viewroom', room_id=room_id))
 
 @app.route('/home/room/leave/<room_id>', methods=['POST', 'GET'])
 def leaveroom(room_id):
     if 'loggedin' in session:
-        response = requests.get(f"http://127.0.0.1:5000/api/join_rooms/{room_id}/{session['id']}")
+        response = requests.get(f"{my_url}/api/join_rooms/{room_id}/{session['id']}")
         checkJoin = response.json()              
         if checkJoin == None:
             msg = 'ยังไม่ได้ทำการเข้าห้อง'
         elif  checkJoin != None:
-            response = requests.delete(f"http://127.0.0.1:5000/api/join_rooms/{room_id}/{session['id']}")
+            response = requests.delete(f"{my_url}/api/join_rooms/{room_id}/{session['id']}")
             msg = 'Leave Successfuly'
         return redirect(url_for('viewroom', room_id=room_id))
 
 @app.route('/home/room/trainmodel/<room_id>', methods=['POST', 'GET'])
 def trainmodel(room_id):
     if 'loggedin' in session:
-        response = requests.get(f"http://127.0.0.1:5000/api/join_rooms/{room_id}")
+        response = requests.get(f"{my_url}/api/join_rooms/{room_id}")
         acc_join = response.json()
         df = pd.DataFrame(acc_join)
         batch_size = int(np.ceil(df.shape[0]*0.75))
@@ -639,14 +640,14 @@ def trainmodel(room_id):
             'model_name' : new_model_name,
             'train_status' : 'trained'
         }
-        response = requests.put(f"http://127.0.0.1:5000/api/models/{room_id}", json=data)
+        response = requests.put(f"{my_url}/api/models/{room_id}", json=data)
         msg = 'trained'
         return redirect(url_for('manageroom'))
 
 @app.route('/home/room/recognition/<room_id>', methods=['POST', 'GET'])
 def predict_recognition(room_id):
     if request.method == 'GET':
-        response = requests.get(f"http://127.0.0.1:5000/api/rooms/{room_id}")
+        response = requests.get(f"{my_url}/api/rooms/{room_id}")
         inforoom = response.json()
         return render_template('recognition.html',inforoom=inforoom)
     
@@ -660,7 +661,7 @@ def predict_recognition(room_id):
             image = img_pre.imread(image_path)
             os.remove(image_path)
 
-            response = requests.get(f"http://127.0.0.1:5000/api/signatures/room/{room_id}")
+            response = requests.get(f"{my_url}/api/signatures/room/{room_id}")
             myresult = response.json()
             df = pd.DataFrame(myresult)
             signers_id = df['id'].unique()
@@ -685,14 +686,14 @@ def predict_recognition(room_id):
             predict_idx = np.argmax(probs)
             predict_id = signers_id[predict_idx]
 
-            response = requests.get(f"http://127.0.0.1:5000/api/accounts/{predict_id}")
+            response = requests.get(f"{my_url}/api/accounts/{predict_id}")
             pre_acc = response.json()
             std_id = pre_acc['std_id']
             fname = pre_acc['fname']
             lname = pre_acc['lname']
             maxprop = np.max(probs)
 
-            response = requests.get(f"http://127.0.0.1:5000/api/rooms/{room_id}")
+            response = requests.get(f"{my_url}/api/rooms/{room_id}")
             inforoom = response.json()
             return render_template('recognition.html', std_id=std_id, fname=fname, lname=lname, maxprop=maxprop, inforoom=inforoom)
         else:
@@ -701,11 +702,11 @@ def predict_recognition(room_id):
 @app.route('/home/room/verification/<room_id>', methods=['POST', 'GET'])
 def predict_verification(room_id):
     if request.method == 'GET':
-        response = requests.get(f"http://127.0.0.1:5000/api/join_rooms/{room_id}/{session['id']}")
+        response = requests.get(f"{my_url}/api/join_rooms/{room_id}/{session['id']}")
         checkJoin = response.json()
         if checkJoin == None:
             return redirect(url_for('viewroom', room_id=room_id))
-        response = requests.get(f"http://127.0.0.1:5000/api/rooms/{room_id}")
+        response = requests.get(f"{my_url}/api/rooms/{room_id}")
         inforoom = response.json()
         return render_template('verification.html',inforoom=inforoom)
 
@@ -720,11 +721,11 @@ def predict_verification(room_id):
             image = img_pre.imread(image_path)
             os.remove(image_path)
 
-            response = requests.get(f"http://127.0.0.1:5000/api/signatures/std_id/{std_id}")
+            response = requests.get(f"{my_url}/api/signatures/std_id/{std_id}")
             myresult = response.json()
             df = pd.DataFrame(myresult)
             if df.shape[0] == 0:
-                response = requests.get(f"http://127.0.0.1:5000/api/rooms/{room_id}")
+                response = requests.get(f"{my_url}/api/rooms/{room_id}")
                 inforoom = response.json()
                 return render_template('verification.html', inforoom=inforoom)
 
@@ -754,11 +755,11 @@ def predict_verification(room_id):
                 predict_genre = "เป็นลายเซ็นของจริง"
                 check_status = 'ผ่านการตรวจสอบ'
                 
-            response = requests.get(f"http://127.0.0.1:5000/api/accounts/std_id/{std_id}")
+            response = requests.get(f"{my_url}/api/accounts/std_id/{std_id}")
             account = response.json()
             data = {'check_status' : check_status}
-            response = requests.put(f"http://127.0.0.1:5000/api/join_rooms/{room_id}/{account['id']}", json=data)
-            response = requests.get(f"http://127.0.0.1:5000/api/rooms/{room_id}")
+            response = requests.put(f"{my_url}/api/join_rooms/{room_id}/{account['id']}", json=data)
+            response = requests.get(f"{my_url}/api/rooms/{room_id}")
             inforoom = response.json()
             return  render_template('verification.html', inforoom=inforoom, predict_genre=predict_genre)
         else:
@@ -768,7 +769,7 @@ def predict_verification(room_id):
 @app.route('/home/room/export/<room_id>', methods=['POST', 'GET'])
 def export_file(room_id):
     if request.method == 'GET':
-        response = requests.get(f"http://127.0.0.1:5000/api/join_rooms/{room_id}")
+        response = requests.get(f"{my_url}/api/join_rooms/{room_id}")
         acc_join = response.json()
 
         wb = Workbook()
