@@ -26,10 +26,10 @@ app.config['MYSQL_PORT'] = int(os.environ.get('DATABASE_PORT'))
 app.config['MYSQL_DB'] = os.environ.get('DATABASE_NAME')
 
 my_url = os.environ.get('HOST_URL')
-
+app_dir = os.environ.get('APP_DIR')
 
 mysql = MySQL(app)
-UPLOAD_FOLDER = r'src\static\uploads'
+UPLOAD_FOLDER = os.path.join(app_dir,'static','uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
@@ -104,9 +104,9 @@ def get_batch(batch_size, room_id):
 def get_model(room_id):
     response = requests.get(f"{my_url}/api/models/{room_id}")
     model_data = response.json()
-    model_path = os.path.join(r"src\static\models", model_data['model_name']+".h5")
-    custom_objects = {"contrastive_loss": contrastive_loss}
-    model = tf.keras.models.load_model(r'src\default_model.h5', custom_objects)
+    model_path = os.path.join(app_dir,'static','models', model_data['model_name']+".h5")
+    custom_objects = {"contrastive_loss": contrastive_loss, 'K':K}
+    model = tf.keras.models.load_model(os.path.join(app_dir,'default_model.h5'), custom_objects)
     model.load_weights(model_path)
     return model
 
@@ -553,7 +553,7 @@ def deleteRoom(room_id):
         model_data = response.json()
         model_name = model_data['model_name']
         if model_name != 'signet_model':
-            model_path = os.path.join(r"src\static\models", model_name+".h5")
+            model_path = os.path.join(app_dir,'static','models', model_name+".h5")
             os.remove(model_path)
         response = requests.delete(f"{my_url}/api/rooms/{room_id}")
         return redirect(url_for('manageroom'))
@@ -634,7 +634,7 @@ def trainmodel(room_id):
             loss = model.train_on_batch(inputs, targets)
         
         new_model_name = f"model_room_{room_id}"
-        new_model_path = os.path.join(r"src\static\models", new_model_name+".h5")
+        new_model_path = os.path.join(app_dir,'static','models', new_model_name+".h5")
         model.save_weights(new_model_path)
 
         data = {
