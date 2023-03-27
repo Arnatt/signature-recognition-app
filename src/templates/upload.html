@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Home Page</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='edit.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='upload.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link rel="stylesheet" href="/src/static/upload.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+    <script src="/src/static/js/myscript.js"></script>
+</head>
+<body class="loggedin">
+    <nav class="navtop">
+        <div>
+          <h1>Signature Prediction</h1>
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i>Home</a>
+          <a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i>Profile</a>
+          <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i>Logout</a>
+        </div>
+      </nav>
+
+      <div class="contrainer">
+        <a type="button" class="btn btn-secondary btn-sm btn_up_back" href="{{ url_for('profile') }}" >back</a>
+        <div class="upload_image">
+            <h1>UPLOAD SIGNATURE</h1>
+            <form action="" method="POST" enctype="multipart/form-data" class="file-uploader">
+                <div class="file-uploader__message-area">
+                    <p>Select a file to upload</p>
+                  </div>
+                <div class="file-chooser">
+                    <input type="file" name="file[]" id="fileInput" class="file-chooser__input" multiple />
+                </div>        
+        
+                <input type="submit" name="submit" class="file-uploader__submit-button" value="UPLOAD"/>    
+            </form>
+        
+        </div>
+      </div>
+</body>
+</html>
+
+<!-- <script>
+    $(document).ready(function(){
+     // File type validation
+        $("#fileInput").change(function(){
+            var fileLength = this.files.length;
+            var match= ["image/jpeg","image/png","image/jpg","image/gif"];
+            var i;
+            for(i = 0; i < fileLength; i++){ 
+                var file = this.files[i];
+                var imagefile = file.type;
+                if(!((imagefile==match[0]) || (imagefile==match[1]) || (imagefile==match[2]) || (imagefile==match[3]))){
+                    alert('Please select a valid image file (JPEG/JPG/PNG/GIF).');
+                    $("#fileInput").val('');
+                    return false;
+                }
+            }
+        });
+    });
+</script> -->

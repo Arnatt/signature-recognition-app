@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+		<meta charset="utf-8">
+		<title>Home Page</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+		<link rel="stylesheet" href="{{ url_for('static', filename='edit.css') }}">
+		<link rel="stylesheet" href="{{ url_for('static', filename='upload.css') }}">
+		<link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">    
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  </head>
+<body>
+
+</body>
+  <nav class="navtop">
+    <div>
+      <h1>Signature Prediction</h1>
+              <a href="{{ url_for('home') }}"><i class="fas fa-home"></i>Home</a>
+      <a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i>Profile</a>
+      <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i>Logout</a>
+    </div>
+  </nav>
+
+  <div class="contrainer">
+    <a href="{{ url_for('home') }}" type="button" class="btn btn-secondary" style="margin-top: 20px;">back</a>
+    
+    <p>{{msg}}</p>
+
+    <div class="card" style="padding-left: 20px; margin-bottom: 20px;">
+      <div class="card-title"></div><h3> {{inforoom['room_name']}}</h3>
+      <div class="card-body">
+        <p> คำอธิบาย : {{inforoom['description']}}</p>
+        <p>สถานะ : {{inforoom['train_status']}}</p>
+      </div>
+    </div>
+    
+
+    <a type="submit" class="btn btn-success" href="{{url_for('joinroom', room_id = inforoom['room_id'])}}">Join room</a>
+    <a type="submit" class="btn btn-danger" href="{{url_for('leaveroom', room_id = inforoom['room_id'])}}">Leave room</a>
+    <a type="submit" class="btn btn-outline-primary" href="{{url_for('predict_recognition', room_id = inforoom['room_id'])}}">Prediction</a>
+    <a type="submit" class="btn btn-outline-primary" href="{{url_for('predict_verification', room_id = inforoom['room_id'])}}">Verfication</a>
+    
+
+    <div class="card" style="margin-bottom: 20px;">
+      <table id="example" class="table align-middle mb-0 bg-white" style="margin-top: -10px;">
+        <thead class="bg-light">
+          <tr>
+            <th scope="col">รหัสนักศึกษา</th>
+            <th scope="col">ชื่อ</th>
+            <th scope="col">นามสกุล</th>
+            <th scope="col">สถานะ</th>
+          </tr>
+        </thead>        
+        <tbody>    
+          {% for row in acc_join %}      
+          <tr>            
+            <td>{{row.0}}</td>
+            <td>{{row.1}}</td>
+            <td>{{row.2}}</td>
+            <td>{{row.3}}</td>            
+          </tr>    
+          {% endfor %}      
+        </tbody>        
+      </table>
+    </div>
+    <div class="col text-center">
+      <a type="button" class="btn btn-primary mb-2" href="{{url_for('export_file', room_id = inforoom['room_id'])}}">Export csv file</a>
+    </div>
+   
+  </div> 
+
+</body>
+
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<script>
+$(document).ready(function () {
+  $('#example').DataTable();
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+</html>

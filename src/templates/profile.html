@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='upload.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+</head>
+<body class="loggedin">
+    <nav class="navtop">
+        <div>
+            <h1>Signature Prediction</h1>
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i>Home</a>
+            <a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i>Profile</a>
+            <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i>Logout</a>
+        </div>
+    </nav>
+      
+
+    <div class="contrainer">
+        <a href="{{ url_for('home') }}" type="button" class="btn btn-secondary btn-sm" style="margin-top: 20px;">back</a>
+        
+        <div class="card" id="profile_card">
+            <div class="card-header text-center" id="profile_title">
+                <h2>Profile Page</h2>
+            </div>
+            <div class="card-body"> 
+                    <p>Your account details are below:</p>
+                    <table class="tableuser">
+                        <tr>
+                            <td><h4>Username: &nbsp;</h4></td>
+                            <td><h6>{{ account['username'] }}</h6></td>
+                        </tr>
+                        <tr>
+                            <td><h4>Email:  &nbsp;</h4></td>
+                            <td><h6>{{ account['email'] }}</h6></td>
+                        </tr>
+                        <tr>
+                            <td><h4>Student ID: &nbsp;</h4></td>
+                            <td><h6>{{ account['std_id'] }}</h6></td>
+                        </tr>
+                        <tr>
+                            <td><h4>First Name: &nbsp;</h4></td>
+                            <td><h6>{{ account['fname'] }}</h6></td>
+                        </tr>
+                        <tr>
+                            <td><h4>Last Name: &nbsp;</h4></td>
+                            <td><h6>{{ account['lname'] }}</h6></td>
+                        </tr>
+                    </table>
+        </div>
+        
+        
+        
+            <div class="container text-center" style="padding: 30px;">
+                <div class="row align-items-start">
+                    <div class="col">
+                        <a href="{{ url_for('edit_profile', username = account.username) }}"><button class="btn btn-primary">Edit Profile</button></a>
+                    </div>
+                    <div class="col">
+                        <a href="{{ url_for('upload_image', id = account.id) }}"><button class="btn btn-primary">Upload signature</button></a>
+                    </div>
+                </div>        
+            </div>
+        
+            {% for row in images %}
+                <div class="showsignature">
+                    <img src="data:; charset = utf-8; base64,{{row.1}}" width="200px"; height="150px"/>
+                    <a href="{{ url_for('manage_image', signature_id = row.0) }}" type="button" class="btn btn-danger btn-sm">DELETE</a>
+                </div>
+                
+            {% endfor %}
+           
+            
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+
