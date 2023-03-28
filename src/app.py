@@ -581,7 +581,7 @@ def editroom(room_id):
 def kick_user(room_id, id):
     if 'loggedin' in session:
         response = requests.delete(f"{my_url}/api/join_rooms/{room_id}/{id}")
-        return redirect(url_for('editroom'))
+        return redirect(url_for('editroom', room_id=room_id))
 
 @app.route('/home/room/<room_id>', methods=['POST', 'GET'])
 def viewroom(room_id):   
