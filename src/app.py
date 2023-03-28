@@ -626,7 +626,7 @@ def trainmodel(room_id):
         acc_join = response.json()
         df = pd.DataFrame(acc_join)
         batch_size = int(np.ceil(df.shape[0]*0.75))
-        n_iter = 3*batch_size
+        n_iter = 50*batch_size
         model = get_model(room_id)
 
         for i in range(1, n_iter+1):
