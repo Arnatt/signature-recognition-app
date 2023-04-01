@@ -24,60 +24,89 @@
     <div class="contrainer">
         <a href="{{ url_for('home') }}" type="button" class="btn btn-secondary btn-sm" style="margin-top: 20px;">back</a>
         
-        <div class="card" id="profile_card">
-            <div class="card-header text-center" id="profile_title">
-                <h2>Profile Page</h2>
-            </div>
-            <div class="card-body"> 
-                    <p>Your account details are below:</p>
-                    <table class="tableuser">
-                        <tr>
-                            <td><h4>Username: &nbsp;</h4></td>
-                            <td><h6>{{ account['username'] }}</h6></td>
-                        </tr>
-                        <tr>
-                            <td><h4>Email:  &nbsp;</h4></td>
-                            <td><h6>{{ account['email'] }}</h6></td>
-                        </tr>
-                        <tr>
-                            <td><h4>Student ID: &nbsp;</h4></td>
-                            <td><h6>{{ account['std_id'] }}</h6></td>
-                        </tr>
-                        <tr>
-                            <td><h4>First Name: &nbsp;</h4></td>
-                            <td><h6>{{ account['fname'] }}</h6></td>
-                        </tr>
-                        <tr>
-                            <td><h4>Last Name: &nbsp;</h4></td>
-                            <td><h6>{{ account['lname'] }}</h6></td>
-                        </tr>
-                    </table>
-        </div>
-        
-        
-        
-            <div class="container text-center" style="padding: 30px;">
-                <div class="row align-items-start">
-                    <div class="col">
-                        <a href="{{ url_for('edit_profile', username = account.username) }}"><button class="btn btn-primary">Edit Profile</button></a>
+        <div class="row">
+            <div class="col">
+                <div class="card" id="profile_card">
+                    <div class="card-header text-center h-200" id="profile_title">
+                        <h2>Your Profile</h2>
                     </div>
-                    <div class="col">
-                        <a href="{{ url_for('upload_image', id = account.id) }}"><button class="btn btn-primary">Upload signature</button></a>
+                    <div class="card-body" id="profile_dt">
+                        <div>
+                            <p class="text-center">Your account details are below:</p>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3">
+                              <p class="mb-0">Username</p>
+                            </div>
+                            <div class="col-sm-9">
+                              <p class="text-muted mb-0">{{ account['username'] }}</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                              <p class="mb-0">Email</p>
+                            </div>
+                            <div class="col-sm-9">
+                              <p class="text-muted mb-0">{{ account['email'] }}</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                              <p class="mb-0">Student ID</p>
+                            </div>
+                            <div class="col-sm-9">
+                              <p class="text-muted mb-0">{{ account['std_id'] }}</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                              <p class="mb-0">First Name</p>
+                            </div>
+                            <div class="col-sm-9">
+                              <p class="text-muted mb-0">{{ account['fname'] }}</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                              <p class="mb-0">Last Name</p>
+                            </div>
+                            <div class="col-sm-9">
+                              <p class="text-muted mb-0">{{ account['lname'] }}</p>
+                            </div>
+                        </div>
+                        <hr>
                     </div>
-                </div>        
-            </div>
-        
-            {% for row in images %}
-                <div class="showsignature">
-                    <img src="data:; charset = utf-8; base64,{{row.1}}" width="200px"; height="150px"/>
-                    <a href="{{ url_for('manage_image', signature_id = row.0) }}" type="button" class="btn btn-danger btn-sm">DELETE</a>
+                </div>
+                <div style="text-align: center; padding-bottom: 10px;">
+                    <a href="{{ url_for('edit_profile', username = account.username) }}"><button class="btn btn-primary">Edit Profile</button></a>
                 </div>
                 
-            {% endfor %}
-           
-            
+            </div>
+            <div class="col" >
+                <div class="card" id="profile_card">
+                    <div class="card-header text-center" id="profile_title">
+                        <h2>Your Signature</h2>
+                    </div>
+                    <div class="card-body" style="overflow-y: scroll;">
+                        {% for row in images %}
+                        <div class="showsignature">
+                            <img src="data:; charset = utf-8; base64,{{row.1}}" width="200px"; height="150px"/>
+                            <a href="{{ url_for('manage_image', signature_id = row.0) }}" type="button" class="btn btn-danger btn-sm">DELETE</a>
+                        </div>                    
+                        {% endfor %}
+                    </div>                    
+                </div>
+                <div style="text-align: center; padding-bottom: 10px;">
+                    <a href="{{ url_for('upload_image', id = account.id) }}"><button class="btn btn-primary">Upload signature</button></a>
+                </div>
+                
+            </div>
         </div>
-    </div>
+    </div>        
 </body>
 </html>
 

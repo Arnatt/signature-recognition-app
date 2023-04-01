@@ -14,19 +14,32 @@ from base64 import b64encode, b64decode
 from PIL import Image
 from keras import backend as K
 import tensorflow as tf
-from getpass import getpass
 
 app = Flask(__name__)
 
-app.secret_key = os.environ.get('SECRET_KEY')
-app.config['MYSQL_HOST'] = os.environ.get('DATABASE_HOST')
-app.config['MYSQL_USER'] = os.environ.get('DATABASE_USER')
-app.config['MYSQL_PASSWORD'] = os.environ.get('DATABASE_PASSWORD')
-app.config['MYSQL_PORT'] = int(os.environ.get('DATABASE_PORT'))
-app.config['MYSQL_DB'] = os.environ.get('DATABASE_NAME')
+# app.secret_key = os.environ.get('SECRET_KEY')
+# app.config['MYSQL_HOST'] = os.environ.get('DATABASE_HOST')
+# app.config['MYSQL_USER'] = os.environ.get('DATABASE_USER')
+# app.config['MYSQL_PASSWORD'] = os.environ.get('DATABASE_PASSWORD')
+# app.config['MYSQL_PORT'] = int(os.environ.get('DATABASE_PORT'))
+# app.config['MYSQL_DB'] = os.environ.get('DATABASE_NAME')
 
-my_url = os.environ.get('HOST_URL')
-app_dir = os.environ.get('APP_DIR')
+# my_url = os.environ.get('HOST_URL')
+# app_dir = os.environ.get('APP_DIR')
+
+#------------------Hard Code Zone--------------------#
+app.secret_key = 'key'
+app.config['MYSQL_HOST'] = 'db-mysql-sgp1-83666-do-user-13812937-0.b.db.ondigitalocean.com'
+app.config['MYSQL_USER'] = 'doadmin'
+app.config['MYSQL_PASSWORD'] = 'AVNS_53EMrhkdazoHLvh07GX'
+app.config['MYSQL_PORT'] = 25060
+app.config['MYSQL_DB'] = 'defaultdb'
+
+app_dir = '/src'
+my_url = 'http://127.0.0.1:5000/'
+#----------------------------------------------------#
+
+
 
 mysql = MySQL(app)
 UPLOAD_FOLDER = os.path.join(app_dir,'static','uploads')
@@ -111,7 +124,7 @@ def get_model(room_id):
     return model
 
 
-# accounts
+#============================== API Accounts ==============================#
 @app.route('/api/accounts/<id>', methods=['GET'])
 def take_account_by_id(id):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -160,7 +173,7 @@ def change_account(id):
     return make_response(jsonify({'message' : 'You have successfully updated!'}), 200)
 
 
-# signatues
+#============================== API Signatures ==============================#
 @app.route('/api/signatures/<account_id>', methods=['GET'])
 def take_signatures(account_id):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -219,7 +232,7 @@ def erase_signature(signature_id):
     return make_response(jsonify({'message' : 'Delete image successfully!'}), 200)
 
 
-# room
+#============================== API Rooms ==============================#
 @app.route('/api/rooms/', methods=['GET'])
 def take_rooms():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -281,7 +294,7 @@ def erase_room(room_id):
     return make_response(jsonify({'message' : 'Delete room successfully!'}), 200)
 
 
-# join_rooms
+#============================== API Join_rooms ==============================#
 @app.route('/api/join_rooms/<room_id>', methods=['GET'])
 def take_join_rooms(room_id):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -328,7 +341,7 @@ def erase_join_room(room_id, account_id):
     return make_response(jsonify({'message' : 'Kick participant successfully!'}), 200)
 
 
-# models
+#============================== API Models ==============================#
 @app.route('/api/models/<room_id>', methods=['GET'])
 def take_model(room_id):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -355,7 +368,7 @@ def change_model(room_id):
     return make_response(jsonify({'message' : 'Train model successfully!'}), 200)
 
 
-# app
+#============================== APP ==============================#
 @app.route('/', methods=['GET', 'POST'])
 def login():
     # Output message if something goes wrong...
@@ -465,7 +478,7 @@ def profile():
     # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
-# go to edit profile page
+# Go to edit profile page
 @app.route('/edit/<username>' , methods=['POST', 'GET'])
 def edit_profile(username):
     if request.method == 'GET':
@@ -483,7 +496,7 @@ def edit_profile(username):
         response = requests.put(f"{my_url}/api/accounts/{session['id']}", json=data)
         return redirect(url_for('profile'))
 
-#go to upload image
+# Go to upload image
 @app.route('/upload/<id>' , methods=['POST', 'GET'])
 def upload_image(id):
     if request.method == 'GET':
@@ -508,13 +521,14 @@ def upload_image(id):
                 os.remove(image_path)
         return redirect(url_for('profile'))
 
-#     
+# Delete image     
 @app.route('/profile/delete/<signature_id>' , methods=['DELETE','GET'])
 def manage_image(signature_id):
     if 'loggedin' in session:
         response = requests.delete(f"{my_url}/api/signatures/{signature_id}")
         return redirect(url_for('profile'))
 
+# Create room
 @app.route('/home/createroom' , methods=['POST', 'GET'])
 def createroom():
     if request.method == 'GET':
@@ -538,6 +552,7 @@ def createroom():
         flash('Success')
         return redirect(url_for('home'))
 
+# Manage room
 @app.route('/home/manageroom/' , methods=['POST', 'GET'])
 def manageroom():
     if 'loggedin' in session:
@@ -546,6 +561,7 @@ def manageroom():
         myrooms = [(row['room_id'], row['room_name'], row['description'], row['train_status']) for row in myrooms]
         return render_template('manageroom.html' , myrooms=myrooms )
 
+# Delete room
 @app.route('/home/manageroom/delete/<room_id>' , methods=['POST', 'GET'])
 def deleteRoom(room_id):
     if 'loggedin' in session:
@@ -558,6 +574,7 @@ def deleteRoom(room_id):
         response = requests.delete(f"{my_url}/api/rooms/{room_id}")
         return redirect(url_for('manageroom'))
 
+# Edit room
 @app.route('/home/manageroom/editroom/<room_id>' , methods=['POST', 'GET'])
 def editroom(room_id):
     if request.method == 'GET':
@@ -576,13 +593,15 @@ def editroom(room_id):
         response = requests.put(f"{my_url}/api/rooms/{room_id}", json=data)
         flash("Update Complate !")
         return redirect(url_for('manageroom'))
-    
+
+# Delete user in room
 @app.route('/home/manageroom/editroom/delete/<room_id>/<id>' , methods=['POST', 'GET'])
 def kick_user(room_id, id):
     if 'loggedin' in session:
         response = requests.delete(f"{my_url}/api/join_rooms/{room_id}/{id}")
         return redirect(url_for('editroom', room_id=room_id))
 
+# Visit room
 @app.route('/home/room/<room_id>', methods=['POST', 'GET'])
 def viewroom(room_id):   
   if 'loggedin' in session:
@@ -593,6 +612,7 @@ def viewroom(room_id):
         acc_join = [(row['std_id'], row['fname'], row['lname'], row['check_status']) for row in acc_join]
         return render_template('room.html', inforoom=inforoom, acc_join=acc_join)
 
+# Join room
 @app.route('/home/room/join/<room_id>', methods=['POST', 'GET'])
 def joinroom(room_id):
     if 'loggedin' in session:
@@ -607,6 +627,7 @@ def joinroom(room_id):
             response = requests.post(f"{my_url}/api/join_rooms/", json=data)  
         return redirect(url_for('viewroom', room_id=room_id))
 
+# Leave room
 @app.route('/home/room/leave/<room_id>', methods=['POST', 'GET'])
 def leaveroom(room_id):
     if 'loggedin' in session:
@@ -619,6 +640,7 @@ def leaveroom(room_id):
             msg = 'Leave Successfuly'
         return redirect(url_for('viewroom', room_id=room_id))
 
+# Train model in room
 @app.route('/home/room/trainmodel/<room_id>', methods=['POST', 'GET'])
 def trainmodel(room_id):
     if 'loggedin' in session:
@@ -645,6 +667,7 @@ def trainmodel(room_id):
         msg = 'trained'
         return redirect(url_for('manageroom'))
 
+#============================== Function in Scope ==============================#
 @app.route('/home/room/recognition/<room_id>', methods=['POST', 'GET'])
 def predict_recognition(room_id):
     if request.method == 'GET':
@@ -788,8 +811,7 @@ def export_file(room_id):
         wb.save(file)
 
         # Seek to the beginning of the BytesIO object
-        file.seek(0)
-        
+        file.seek(0)       
 
         # Create a response object with the workbook data
         return Response(file.read(), mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition":"attachment;filename=verification_report.xlsx"})

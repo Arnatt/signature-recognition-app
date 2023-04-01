@@ -145,7 +145,7 @@ body.loggedin {
 }
 /* stylesheet for Home page */
 .btn-mycustom {
-    width: 120px;
+    width: 140px;
 }
 
 
@@ -156,7 +156,13 @@ body.loggedin {
 }
 
 #profile_card {
+    width: 450px;
+    height: 450px;
     margin-bottom: 20px;
+}
+
+#profile_dt {
+    text-align: center;
 }
 
 /* stylesheet for edit profile page */
