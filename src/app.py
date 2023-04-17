@@ -17,26 +17,26 @@ import tensorflow as tf
 
 app = Flask(__name__)
 
-# app.secret_key = os.environ.get('SECRET_KEY')
-# app.config['MYSQL_HOST'] = os.environ.get('DATABASE_HOST')
-# app.config['MYSQL_USER'] = os.environ.get('DATABASE_USER')
-# app.config['MYSQL_PASSWORD'] = os.environ.get('DATABASE_PASSWORD')
-# app.config['MYSQL_PORT'] = int(os.environ.get('DATABASE_PORT'))
-# app.config['MYSQL_DB'] = os.environ.get('DATABASE_NAME')
+app.secret_key = os.environ.get('SECRET_KEY')
+app.config['MYSQL_HOST'] = os.environ.get('DATABASE_HOST')
+app.config['MYSQL_USER'] = os.environ.get('DATABASE_USER')
+app.config['MYSQL_PASSWORD'] = os.environ.get('DATABASE_PASSWORD')
+app.config['MYSQL_PORT'] = int(os.environ.get('DATABASE_PORT'))
+app.config['MYSQL_DB'] = os.environ.get('DATABASE_NAME')
 
-# my_url = os.environ.get('HOST_URL')
-# app_dir = os.environ.get('APP_DIR')
+my_url = os.environ.get('HOST_URL')
+app_dir = os.environ.get('APP_DIR')
 
 #------------------Hard Code Zone--------------------#
-app.secret_key = 'key'
-app.config['MYSQL_HOST'] = 'db-mysql-sgp1-83666-do-user-13812937-0.b.db.ondigitalocean.com'
-app.config['MYSQL_USER'] = 'doadmin'
-app.config['MYSQL_PASSWORD'] = 'AVNS_53EMrhkdazoHLvh07GX'
-app.config['MYSQL_PORT'] = 25060
-app.config['MYSQL_DB'] = 'defaultdb'
+# app.secret_key = 'key'
+# app.config['MYSQL_HOST'] = 'db-mysql-sgp1-83666-do-user-13812937-0.b.db.ondigitalocean.com'
+# app.config['MYSQL_USER'] = 'doadmin'
+# app.config['MYSQL_PASSWORD'] = 'AVNS_53EMrhkdazoHLvh07GX'
+# app.config['MYSQL_PORT'] = 25060
+# app.config['MYSQL_DB'] = 'defaultdb'
 
-app_dir = '/src'
-my_url = 'http://127.0.0.1:5000/'
+# app_dir = '/src'
+# my_url = 'http://127.0.0.1:5000/'
 #----------------------------------------------------#
 
 
