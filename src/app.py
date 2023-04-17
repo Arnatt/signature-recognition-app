@@ -367,7 +367,6 @@ def change_model(room_id):
     mysql.connection.commit()
     return make_response(jsonify({'message' : 'Train model successfully!'}), 200)
 
-
 #============================== APP ==============================#
 @app.route('/', methods=['GET', 'POST'])
 def login():
